@@ -2,7 +2,7 @@
 
 ## Implemented (Phase 1)
 - [x] Chat with Gemini Flash (streaming, OpenRouter fallback)
-- [x] 14 structured protocols (decision waffling, overwhelm, focusing, Art of Accomplishment, JournalSpeak, Locally Optimal, Ways of Looking)
+- [x] 15 structured protocols (decision waffling, overwhelm, focusing, Art of Accomplishment, JournalSpeak, Locally Optimal, Ways of Looking, Replacing Fear)
 - [x] Protocol picker with categories
 - [x] Protocol select triggers AI greeting
 - [x] Diagnostic Model (Dalio-style pattern analysis)
@@ -19,11 +19,15 @@
 - [x] Task dumping with AI categorization (side-by-side transparency view, original line numbers preserved)
 - [x] Stardust reward system (points for session completion, streak tracking)
 - [x] Rob Burbea "Ways of Looking" protocol (energy body + emptiness lenses + imaginal practice)
-- [x] Playwright e2e tests (18 passing)
+- [x] Trust Credit System — living money loan model (micro→small→medium→large loan ladder)
+- [x] "Replacing Fear" protocol (Richard Ngo sequence + AnnaSalamon living money)
+- [x] Aspirational headline on protocol picker
+- [x] AI is trust-credit-aware (calibrates suggestions to user's credit score)
+- [x] Codex adversarial review (8 issues found, 6 fixed)
+- [x] Deployed to Vercel (recover.jp.net) + GitHub (rajlego/recover)
+- [x] Playwright e2e tests (19 passing)
 
 ## In Progress / Next
-- [ ] Push to remote
-- [ ] Codex adversarial review
 
 ## Queued Features
 ### Task Management
@@ -58,11 +62,14 @@
 - John Vervaeke
 - Nicole Sachs (JournalSpeak) — ACTIVE (protocol built)
 - James Pennebaker (expressive writing research) — ACTIVE (integrated into JournalSpeak)
+- AnnaSalamon (living money / willpower as loans) — ACTIVE (trust credit system + system prompt)
+- Richard Ngo (Replacing Fear sequence) — ACTIVE (protocol built)
 
 ### Protocols to Add
 - [x] JournalSpeak (20 min expressive writing + 10 min soothing) — DONE
 - [x] Chris Lakin "Locally Optimal" unlearning — DONE
 - [x] Rob Burbea "Ways of Looking" — DONE
+- [x] "Replacing Fear" (trust loans + fear→excitement transition) — DONE
 - [ ] Scenario quick-pick menu (fast "I'm having trouble with ___")
 - [ ] Vibe coding trap detection (nudge when stuck in one mode too long)
 
@@ -79,11 +86,11 @@
 ### Auth & Sync (Phase 2)
 - [ ] Google sign-in via Firebase Auth
 - [ ] Yjs + Firestore sync
-- [ ] Deploy to recover.jp.net
+- [x] Deploy to recover.jp.net (Vercel)
 
 ### Intelligence (Phase 3)
 - [ ] Follow-up check-ins with notifications
-- [ ] Trust economy metrics tracking
+- [x] Trust economy metrics tracking (credit score + loan history in Settings)
 - [ ] Proactive outreach based on patterns
 - [ ] Cost tracking for API usage
 
