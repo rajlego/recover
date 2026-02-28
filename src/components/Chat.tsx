@@ -13,7 +13,6 @@ export function Chat() {
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingMsgId, setStreamingMsgId] = useState<string | null>(null);
-  const [showProtocols, setShowProtocols] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -57,40 +56,40 @@ export function Chat() {
     []
   );
 
-  const sendMessage = useCallback(
-    async (text: string, protocolId?: string) => {
-      if (!text.trim() || isStreaming || !hasApiKey) return;
+  // Core: stream an AI response
+  const streamResponse = useCallback(
+    async (extraUserMsg?: string, protocolId?: string) => {
+      if (isStreaming || !hasApiKey) return;
 
-      // Start session if needed
-      if (!activeSession) {
-        startSession(protocolId);
-      }
-
-      const userText = text.trim();
-      setInput("");
-      if (inputRef.current) inputRef.current.style.height = "auto";
-
-      addMessage("user", userText);
-      const assistantMsgId = addMessage("assistant", "");
-      setStreamingMsgId(assistantMsgId);
-      setIsStreaming(true);
-
-      const protocol = (activeSession?.protocolId || protocolId)
-        ? getProtocolById(activeSession?.protocolId || protocolId || "")
-        : null;
+      const protocol = protocolId
+        ? getProtocolById(protocolId)
+        : activeSession?.protocolId
+          ? getProtocolById(activeSession.protocolId)
+          : null;
 
       const currentMessages = useSessionStore.getState().getMessages();
+
       const llmMessages: LLMMessage[] = [
         {
           role: "system",
           content: buildSystemPrompt(protocol ?? null, historySessions),
         },
-        ...currentMessages.slice(0, -1).slice(-20).map((m) => ({
-          role: m.role as "user" | "assistant",
-          content: m.content,
-        })),
-        { role: "user" as const, content: userText },
+        ...currentMessages
+          .filter((m) => m.content)
+          .slice(-20)
+          .map((m) => ({
+            role: m.role as "user" | "assistant",
+            content: m.content,
+          })),
       ];
+
+      if (extraUserMsg) {
+        llmMessages.push({ role: "user", content: extraUserMsg });
+      }
+
+      const assistantMsgId = addMessage("assistant", "");
+      setStreamingMsgId(assistantMsgId);
+      setIsStreaming(true);
 
       try {
         abortRef.current = new AbortController();
@@ -130,16 +129,25 @@ export function Chat() {
         abortRef.current = null;
       }
     },
-    [
-      isStreaming,
-      hasApiKey,
-      activeSession,
-      startSession,
-      addMessage,
-      updateMessage,
-      historySessions,
-      settings,
-    ]
+    [isStreaming, hasApiKey, activeSession, addMessage, updateMessage, historySessions, settings]
+  );
+
+  const sendMessage = useCallback(
+    async (text: string, protocolId?: string) => {
+      if (!text.trim() || isStreaming || !hasApiKey) return;
+
+      if (!activeSession) {
+        startSession(protocolId);
+      }
+
+      const userText = text.trim();
+      setInput("");
+      if (inputRef.current) inputRef.current.style.height = "auto";
+
+      addMessage("user", userText);
+      await streamResponse(userText, protocolId);
+    },
+    [isStreaming, hasApiKey, activeSession, startSession, addMessage, streamResponse]
   );
 
   const handleKeyDown = useCallback(
@@ -157,7 +165,6 @@ export function Chat() {
       const completed = completeSession();
       if (completed) addSession(completed);
     }
-    setShowProtocols(false);
   }, [activeSession, completeSession, addSession]);
 
   const handleProtocolSelect = useCallback(
@@ -166,52 +173,62 @@ export function Chat() {
         const completed = completeSession();
         if (completed) addSession(completed);
       }
+
       startSession(protocolId || undefined);
-      setShowProtocols(false);
-      inputRef.current?.focus();
+
+      const protocol = protocolId ? getProtocolById(protocolId) : null;
+      const greeting = protocol
+        ? `The user just selected the "${protocol.name}" protocol. Begin guiding them through it. Start with a warm, brief greeting and the first step.`
+        : `The user wants to talk freely. Greet them warmly and ask what's going on. Keep it brief — 1-2 sentences.`;
+
+      setTimeout(() => {
+        streamResponse(greeting, protocolId || undefined);
+      }, 50);
     },
-    [activeSession, completeSession, addSession, startSession]
+    [activeSession, completeSession, addSession, startSession, streamResponse]
   );
 
-  // No API key — show gentle prompt
+  // No API key
   if (!hasApiKey) {
     return (
       <div className="flex flex-col items-center justify-center h-full px-4 text-center">
-        <h2 className="text-xl text-base-content/60 mb-2">
+        <h2
+          className="text-xl mb-2"
+          style={{ color: "var(--astral-text)" }}
+        >
           Welcome to Recover
         </h2>
-        <p className="text-sm text-base-content/40 mb-4 max-w-sm">
+        <p
+          className="text-sm mb-4 max-w-sm"
+          style={{ color: "var(--astral-text-dim)" }}
+        >
           To get started, add your Google AI Studio API key in Settings.
         </p>
-        <p className="text-xs text-base-content/30">
-          Press{" "}
-          <kbd className="kbd kbd-xs">Cmd</kbd>+
-          <kbd className="kbd kbd-xs">Shift</kbd>+
-          <kbd className="kbd kbd-xs">,</kbd>{" "}
-          for Settings
+        <p className="text-xs" style={{ color: "var(--astral-text-dim)" }}>
+          Press Cmd+Shift+, for Settings
         </p>
       </div>
     );
   }
 
-  // No active session and no messages — show protocol picker or empty state
-  if (!activeSession && messages.length === 0 && !showProtocols) {
+  // No active session — protocol picker
+  if (!activeSession) {
     return (
       <div className="flex flex-col h-full">
         <ProtocolPicker onSelect={handleProtocolSelect} />
-        <div className="p-4 border-t border-base-300">
-          <div className="flex gap-2 max-w-xl mx-auto">
+        <div className="chat-input-bar p-4">
+          <div className="flex gap-2 max-w-2xl mx-auto">
             <textarea
               ref={inputRef}
-              className="textarea textarea-bordered flex-1 resize-none text-sm min-h-[2.5rem]"
+              className="astral-input flex-1 resize-none text-sm rounded-xl px-4 py-2.5 min-h-[2.5rem] outline-none"
               value={input}
               onChange={handleInputChange}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   if (input.trim()) {
-                    startSession();
-                    sendMessage(input);
+                    handleProtocolSelect(null);
+                    setTimeout(() => sendMessage(input), 100);
                   }
                 }
               }}
@@ -226,43 +243,74 @@ export function Chat() {
 
   return (
     <div className="flex flex-col h-full">
+      {/* Protocol indicator */}
+      {activeSession.protocolId && (
+        <div
+          className="px-5 py-1.5 shrink-0"
+          style={{
+            borderBottom: "1px solid var(--astral-border)",
+            background: "rgba(8, 11, 22, 0.4)",
+          }}
+        >
+          <div className="max-w-2xl mx-auto">
+            <span
+              className="text-xs font-medium tracking-wide"
+              style={{ color: "var(--astral-accent)" }}
+            >
+              {getProtocolById(activeSession.protocolId)?.name}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
-        <div className="max-w-xl mx-auto space-y-4">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-            >
+        <div className="max-w-2xl mx-auto space-y-4">
+          {messages.map((msg) => {
+            if (!msg.content && streamingMsgId !== msg.id) return null;
+            return (
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
-                  msg.role === "user"
-                    ? "bg-primary text-primary-content rounded-br-md"
-                    : "bg-base-200 text-base-content rounded-bl-md"
-                }`}
+                key={msg.id}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
-                {msg.role === "assistant" ? (
-                  <div className="relative">
-                    <MarkdownContent content={msg.content} />
-                    {streamingMsgId === msg.id && (
-                      <span className="inline-block w-0.5 h-4 bg-current animate-pulse ml-0.5 align-text-bottom" />
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                )}
+                <div
+                  className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                    msg.role === "user"
+                      ? "msg-user rounded-br-md"
+                      : "msg-assistant rounded-bl-md"
+                  }`}
+                >
+                  {msg.role === "assistant" ? (
+                    <div className="relative astral-prose">
+                      {msg.content ? (
+                        <MarkdownContent content={msg.content} />
+                      ) : null}
+                      {streamingMsgId === msg.id && (
+                        <span className="streaming-cursor" />
+                      )}
+                    </div>
+                  ) : (
+                    <p
+                      className="text-sm whitespace-pre-wrap"
+                      style={{ color: "var(--astral-text)" }}
+                    >
+                      {msg.content}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           <div ref={messagesEndRef} />
         </div>
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-base-300">
-        <div className="flex gap-2 max-w-xl mx-auto items-end">
+      <div className="chat-input-bar p-4">
+        <div className="flex gap-2 max-w-2xl mx-auto items-end">
           <button
-            className="btn btn-ghost btn-sm btn-square text-base-content/30 hover:text-base-content/60 self-end"
+            className="p-2 rounded-lg transition-all hover:bg-[var(--astral-glow)]"
+            style={{ color: "var(--astral-text-dim)" }}
             onClick={handleNewSession}
             title="New session"
           >
@@ -277,7 +325,7 @@ export function Chat() {
           </button>
           <textarea
             ref={inputRef}
-            className="textarea textarea-bordered flex-1 resize-none text-sm min-h-[2.5rem]"
+            className="astral-input flex-1 resize-none text-sm rounded-xl px-4 py-2.5 min-h-[2.5rem] outline-none"
             value={input}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
@@ -286,12 +334,15 @@ export function Chat() {
             disabled={isStreaming}
           />
           <button
-            className="btn btn-primary btn-sm self-end"
+            className="btn-astral p-2.5 rounded-xl"
             onClick={() => sendMessage(input)}
             disabled={!input.trim() || isStreaming}
           >
             {isStreaming ? (
-              <span className="loading loading-spinner loading-xs" />
+              <span
+                className="loading loading-spinner loading-xs"
+                style={{ color: "var(--astral-accent)" }}
+              />
             ) : (
               <svg
                 xmlns="http://www.w3.org/2000/svg"

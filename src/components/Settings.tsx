@@ -16,11 +16,17 @@ export function Settings({ onClose }: SettingsProps) {
   );
 
   return (
-    <div className="max-w-lg mx-auto p-6 space-y-6">
+    <div className="max-w-lg mx-auto p-6 space-y-6 overflow-y-auto h-full">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-light">Settings</h1>
+        <h1
+          className="text-xl font-light"
+          style={{ color: "var(--astral-text)" }}
+        >
+          Settings
+        </h1>
         <button
-          className="btn btn-ghost btn-sm btn-square"
+          className="p-2 rounded-lg hover:bg-[var(--astral-glow)] transition-all"
+          style={{ color: "var(--astral-text-dim)" }}
           onClick={onClose}
         >
           <svg
@@ -36,16 +42,17 @@ export function Settings({ onClose }: SettingsProps) {
 
       {/* AI Configuration */}
       <div className="space-y-3">
-        <h2 className="text-sm font-medium text-base-content/50 uppercase tracking-wider">
-          AI Configuration
-        </h2>
+        <div className="category-label">AI Configuration</div>
 
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text text-sm">Primary Provider</span>
+        <div className="space-y-1">
+          <label
+            className="text-xs block"
+            style={{ color: "var(--astral-text-dim)" }}
+          >
+            Primary Provider
           </label>
           <select
-            className="select select-bordered select-sm"
+            className="astral-input w-full rounded-lg px-3 py-2 text-sm outline-none"
             value={settings.primaryProvider}
             onChange={(e) =>
               settings.setPrimaryProvider(e.target.value as AIProvider)
@@ -56,51 +63,57 @@ export function Settings({ onClose }: SettingsProps) {
           </select>
         </div>
 
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text text-sm">Google AI Studio API Key</span>
+        <div className="space-y-1">
+          <label
+            className="text-xs block"
+            style={{ color: "var(--astral-text-dim)" }}
+          >
+            Google AI Studio API Key
           </label>
           <input
             type="password"
-            className="input input-bordered input-sm"
+            className="astral-input w-full rounded-lg px-3 py-2 text-sm outline-none"
             value={settings.geminiApiKey}
             onChange={(e) => settings.setGeminiApiKey(e.target.value)}
             placeholder="AIza..."
           />
-          <label className="label">
-            <a
-              href="https://aistudio.google.com/apikey"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="label-text-alt link link-primary text-xs"
-            >
-              Get a free API key
-            </a>
-          </label>
+          <a
+            href="https://aistudio.google.com/apikey"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs hover:underline"
+            style={{ color: "var(--astral-accent)" }}
+          >
+            Get a free API key
+          </a>
         </div>
 
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text text-sm">
-              OpenRouter API Key (fallback)
-            </span>
+        <div className="space-y-1">
+          <label
+            className="text-xs block"
+            style={{ color: "var(--astral-text-dim)" }}
+          >
+            OpenRouter API Key (fallback)
           </label>
           <input
             type="password"
-            className="input input-bordered input-sm"
+            className="astral-input w-full rounded-lg px-3 py-2 text-sm outline-none"
             value={settings.openRouterApiKey}
             onChange={(e) => settings.setOpenRouterApiKey(e.target.value)}
             placeholder="sk-or-..."
           />
         </div>
 
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text text-sm">Gemini Model</span>
+        <div className="space-y-1">
+          <label
+            className="text-xs block"
+            style={{ color: "var(--astral-text-dim)" }}
+          >
+            Gemini Model
           </label>
           <input
             type="text"
-            className="input input-bordered input-sm"
+            className="astral-input w-full rounded-lg px-3 py-2 text-sm outline-none"
             value={settings.geminiModel}
             onChange={(e) => settings.setGeminiModel(e.target.value)}
           />
@@ -109,65 +122,71 @@ export function Settings({ onClose }: SettingsProps) {
 
       {/* Stats */}
       <div className="space-y-3">
-        <h2 className="text-sm font-medium text-base-content/50 uppercase tracking-wider">
-          Your Data
-        </h2>
-        <div className="stats stats-vertical bg-base-200 w-full">
-          <div className="stat py-3">
-            <div className="stat-title text-xs">Total Sessions</div>
-            <div className="stat-value text-lg">{sessions.length}</div>
+        <div className="category-label">Your Data</div>
+        <div className="astral-stat p-4 space-y-3">
+          <div className="flex justify-between items-baseline">
+            <span
+              className="text-xs"
+              style={{ color: "var(--astral-text-dim)" }}
+            >
+              Total Sessions
+            </span>
+            <span
+              className="text-lg font-light"
+              style={{ color: "var(--astral-text)" }}
+            >
+              {sessions.length}
+            </span>
           </div>
-          <div className="stat py-3">
-            <div className="stat-title text-xs">Follow-through Rate</div>
-            <div className="stat-value text-lg">
+          <div className="flex justify-between items-baseline">
+            <span
+              className="text-xs"
+              style={{ color: "var(--astral-text-dim)" }}
+            >
+              Follow-through Rate
+            </span>
+            <span
+              className="text-lg font-light"
+              style={{ color: "var(--astral-accent)" }}
+            >
               {completedSessions.length > 0
                 ? Math.round(
                     (followedThrough.length / completedSessions.length) * 100
                   )
                 : 0}
               %
-            </div>
-            <div className="stat-desc text-xs">
-              {followedThrough.length} of {completedSessions.length} completed
-            </div>
+            </span>
           </div>
         </div>
       </div>
 
       {/* Keyboard shortcuts */}
       <div className="space-y-3">
-        <h2 className="text-sm font-medium text-base-content/50 uppercase tracking-wider">
-          Keyboard Shortcuts
-        </h2>
-        <div className="text-xs space-y-1.5 text-base-content/50">
-          <div className="flex justify-between">
-            <span>Send message</span>
-            <kbd className="kbd kbd-xs">Enter</kbd>
-          </div>
-          <div className="flex justify-between">
-            <span>New line</span>
-            <kbd className="kbd kbd-xs">Shift+Enter</kbd>
-          </div>
-          <div className="flex justify-between">
-            <span>Settings</span>
-            <span>
-              <kbd className="kbd kbd-xs">Cmd</kbd>+
-              <kbd className="kbd kbd-xs">Shift</kbd>+
-              <kbd className="kbd kbd-xs">,</kbd>
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span>Diagnostic Model</span>
-            <span>
-              <kbd className="kbd kbd-xs">Cmd</kbd>+
-              <kbd className="kbd kbd-xs">Shift</kbd>+
-              <kbd className="kbd kbd-xs">D</kbd>
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span>Close / Back</span>
-            <kbd className="kbd kbd-xs">Escape</kbd>
-          </div>
+        <div className="category-label">Keyboard Shortcuts</div>
+        <div
+          className="text-xs space-y-2"
+          style={{ color: "var(--astral-text-dim)" }}
+        >
+          {[
+            ["Send message", "Enter"],
+            ["New line", "Shift+Enter"],
+            ["Settings", "Cmd+Shift+,"],
+            ["Diagnostic Model", "Cmd+Shift+D"],
+            ["Close / Back", "Escape"],
+          ].map(([action, key]) => (
+            <div key={action} className="flex justify-between">
+              <span>{action}</span>
+              <span
+                className="font-mono text-[10px] px-1.5 py-0.5 rounded"
+                style={{
+                  background: "var(--astral-surface)",
+                  border: "1px solid var(--astral-border)",
+                }}
+              >
+                {key}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
