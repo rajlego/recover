@@ -31,14 +31,14 @@ export function ProtocolPicker({ onSelect }: ProtocolPickerProps) {
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="flex flex-col items-center px-4 py-10 max-w-xl mx-auto">
-        <h2
-          className="text-2xl font-light mb-1"
-          style={{ color: "var(--astral-text)" }}
+        <p
+          className="text-sm font-light leading-relaxed mb-8 max-w-md text-center italic"
+          style={{ color: "var(--astral-text-dim)" }}
         >
-          What's going on?
-        </h2>
-        <p className="text-sm mb-8" style={{ color: "var(--astral-text-dim)" }}>
-          Just start typing, or pick a guided protocol.
+          What if I could solve all my problems? What if it is within my
+          power? Right here, right now, there's enough knowledge, enough
+          capacity, that I can take the actions I want to take without having
+          to be attached to the outcomes
         </p>
 
         <button

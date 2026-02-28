@@ -9,6 +9,7 @@ import { MarkdownContent } from "./MarkdownContent";
 import { ProtocolPicker } from "./ProtocolPicker";
 import { Avatar, useAvatarUpdate } from "./Avatar";
 import { useRewardStore, REWARDS } from "../store/rewardStore";
+import { useTrustStore } from "../store/trustStore";
 import type { LLMMessage } from "../models/types";
 
 export function Chat() {
@@ -33,6 +34,17 @@ export function Chat() {
   const { sessions: historySessions, addSession } = useHistoryStore();
   const { updateAvatar } = useAvatarUpdate();
   const { addReward, updateStreak } = useRewardStore();
+  const trustStore = useTrustStore();
+
+  const [showLoanPrompt, setShowLoanPrompt] = useState(false);
+  const [loanCommitment, setLoanCommitment] = useState("");
+
+  // Expire overdue loans on mount
+  useEffect(() => {
+    trustStore.expireOverdueLoans();
+    trustStore.applyDailyDecay();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const messages = getMessages();
   const hasApiKey = !!(settings.geminiApiKey || settings.openRouterApiKey);
@@ -73,10 +85,17 @@ export function Chat() {
 
       const currentMessages = useSessionStore.getState().getMessages();
 
+      const trustState = useTrustStore.getState();
+      const trustCredit = {
+        score: trustState.creditScore,
+        maxSize: trustState.getMaxLoanSize(),
+        activeLoans: trustState.getActiveLoans().length,
+      };
+
       const llmMessages: LLMMessage[] = [
         {
           role: "system",
-          content: buildSystemPrompt(protocol ?? null, historySessions),
+          content: buildSystemPrompt(protocol ?? null, historySessions, trustCredit),
         },
         ...currentMessages
           .filter((m) => m.content)
@@ -202,6 +221,38 @@ export function Chat() {
     },
     [activeSession, completeSession, addSession, startSession, streamResponse]
   );
+
+  const handleMakeLoan = useCallback(() => {
+    if (!loanCommitment.trim()) return;
+    const maxSize = trustStore.getMaxLoanSize();
+
+    // Calculate due time based on loan size
+    const now = new Date();
+    let dueBy: Date;
+    switch (maxSize) {
+      case "micro":
+        dueBy = new Date(now.getTime() + 15 * 60 * 1000); // 15 min
+        break;
+      case "small":
+        dueBy = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour
+        break;
+      case "medium":
+        dueBy = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 1 week
+        break;
+      case "large":
+        dueBy = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 1 month
+        break;
+    }
+
+    trustStore.createLoan(
+      loanCommitment.trim(),
+      maxSize,
+      dueBy.toISOString(),
+      activeSession?.id
+    );
+    setLoanCommitment("");
+    setShowLoanPrompt(false);
+  }, [loanCommitment, trustStore, activeSession]);
 
   // No API key
   if (!hasApiKey) {
@@ -331,6 +382,127 @@ export function Chat() {
         </div>
       </div>
 
+      {/* Active loans banner */}
+      {trustStore.getActiveLoans().length > 0 && !showLoanPrompt && (
+        <div className="px-4 pb-1">
+          <div className="max-w-2xl mx-auto">
+            {trustStore.getActiveLoans().slice(0, 3).map((loan) => (
+              <div
+                key={loan.id}
+                className="flex items-center justify-between px-3 py-1.5 mb-1 rounded-lg text-xs"
+                style={{
+                  background: "rgba(100, 140, 255, 0.06)",
+                  border: "1px solid rgba(100, 140, 255, 0.12)",
+                }}
+              >
+                <span style={{ color: "var(--astral-text-dim)" }}>
+                  <span
+                    className="font-mono mr-1.5 px-1 rounded"
+                    style={{
+                      background: "rgba(100, 140, 255, 0.1)",
+                      color: "var(--astral-accent)",
+                      fontSize: "9px",
+                    }}
+                  >
+                    {loan.size.toUpperCase()}
+                  </span>
+                  {loan.commitment}
+                </span>
+                <div className="flex gap-1 ml-2 shrink-0">
+                  <button
+                    className="px-2 py-0.5 rounded text-[10px] transition-all"
+                    style={{
+                      background: "rgba(100, 255, 180, 0.1)",
+                      color: "rgb(100, 255, 180)",
+                    }}
+                    onClick={() => {
+                      trustStore.resolveLoan(loan.id, "kept");
+                      addReward("loan_kept", 5, `Kept loan: ${loan.commitment}`);
+                    }}
+                  >
+                    kept
+                  </button>
+                  <button
+                    className="px-2 py-0.5 rounded text-[10px] transition-all"
+                    style={{
+                      background: "rgba(255, 100, 100, 0.1)",
+                      color: "rgb(255, 140, 140)",
+                    }}
+                    onClick={() => trustStore.resolveLoan(loan.id, "broken")}
+                  >
+                    broke
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Make a loan prompt */}
+      {showLoanPrompt && (
+        <div className="px-4 pb-2">
+          <div
+            className="max-w-2xl mx-auto p-3 rounded-xl space-y-2"
+            style={{
+              background: "var(--astral-surface)",
+              border: "1px solid var(--astral-border)",
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium" style={{ color: "var(--astral-accent)" }}>
+                Make a loan to yourself
+              </span>
+              <span
+                className="text-[10px] font-mono px-1.5 py-0.5 rounded"
+                style={{
+                  background: "rgba(100, 140, 255, 0.1)",
+                  color: "var(--astral-accent)",
+                }}
+              >
+                credit: {trustStore.creditScore} / max: {trustStore.getMaxLoanSize()}
+              </span>
+            </div>
+            <input
+              type="text"
+              className="astral-input w-full rounded-lg px-3 py-2 text-sm outline-none"
+              value={loanCommitment}
+              onChange={(e) => setLoanCommitment(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleMakeLoan();
+                if (e.key === "Escape") setShowLoanPrompt(false);
+              }}
+              placeholder={
+                trustStore.getMaxLoanSize() === "micro"
+                  ? "Something tiny — doable in 15 min..."
+                  : trustStore.getMaxLoanSize() === "small"
+                    ? "Something small — doable in the next hour..."
+                    : trustStore.getMaxLoanSize() === "medium"
+                      ? "Something for this week..."
+                      : "Something ambitious for this month..."
+              }
+              autoFocus
+            />
+            <div className="flex gap-2 justify-end">
+              <button
+                className="text-xs px-2 py-1 rounded-lg transition-all"
+                style={{ color: "var(--astral-text-dim)" }}
+                onClick={() => setShowLoanPrompt(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn-astral text-xs px-3 py-1 rounded-lg"
+                onClick={handleMakeLoan}
+                disabled={!loanCommitment.trim()}
+              >
+                Commit ({trustStore.getMaxLoanSize()} loan)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Input */}
       <div className="chat-input-bar p-4">
         <div className="flex gap-2 max-w-2xl mx-auto items-end">
@@ -347,6 +519,27 @@ export function Chat() {
               className="w-5 h-5"
             >
               <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
+            </svg>
+          </button>
+          <button
+            className="p-2 rounded-lg transition-all hover:bg-[var(--astral-glow)]"
+            style={{
+              color: showLoanPrompt ? "var(--astral-accent)" : "var(--astral-text-dim)",
+            }}
+            onClick={() => setShowLoanPrompt((v) => !v)}
+            title={`Make a loan (credit: ${trustStore.creditScore})`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="w-5 h-5"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 2a.75.75 0 01.75.75v.258a33.186 33.186 0 016.668.83.75.75 0 01-.336 1.461 31.28 31.28 0 00-1.103-.232l1.702 7.545a.75.75 0 01-.387.832A4.981 4.981 0 0115 14c-.825 0-1.606-.2-2.294-.556a.75.75 0 01-.387-.832l1.77-7.849a31.743 31.743 0 00-3.339-.364v11.851H13a.75.75 0 010 1.5H7a.75.75 0 010-1.5h2.25V4.399a31.712 31.712 0 00-3.339.364l1.77 7.849a.75.75 0 01-.387.832A4.981 4.981 0 015 14c-.825 0-1.606-.2-2.294-.556a.75.75 0 01-.387-.832l1.702-7.545c-.372.06-.742.125-1.103.232a.75.75 0 11-.336-1.462 33.186 33.186 0 016.668-.829V2.75A.75.75 0 0110 2zM5 12.662l-1.18-5.232L5 7.46l1.18-.03L5 12.662zM15 12.662l-1.18-5.232L15 7.46l1.18-.03L15 12.662z"
+                clipRule="evenodd"
+              />
             </svg>
           </button>
           <textarea

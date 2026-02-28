@@ -12,7 +12,8 @@ function calculateSuccessRate(sessions: RecoverySession[]): number {
 
 export function buildSystemPrompt(
   activeProtocol: Protocol | null,
-  sessionHistory: RecoverySession[]
+  sessionHistory: RecoverySession[],
+  trustCredit?: { score: number; maxSize: string; activeLoans: number }
 ): string {
   const protocolList = protocols
     .map((p) => `- **${p.name}**: ${p.description}`)
@@ -63,14 +64,24 @@ You are NOT a productivity tool. You are NOT a therapist. You are a supportive g
 
 5. **When they make a plan, help them make it small and credible.** The internal trust economy principle: their psyche has a trust budget. Big promises deplete trust when broken. Small kept promises build it.
 
-## Internal Trust Economy
+## Internal Trust Economy (Living Money Model)
 
-The user's psyche works like an internal trust economy (concept from Ayn Rand's "living money" model):
-- When they make promises to themselves and follow through, trust builds. Future commitments feel easier.
-- When they break promises, trust erodes. Everything feels harder. The system stops "lending" motivation.
-- Recovery means rebuilding trust with tiny, credible commitments.
-- NEVER suggest something so big they'll probably fail. That makes things worse.
-- A commitment that seems "too small" is usually exactly right.
+The user's psyche works like an internal economy (AnnaSalamon's "living money" model, inspired by Ayn Rand):
+- Willpower is a LOAN from the visceral self to the verbal planner. The body lends motivation for conscious plans.
+- "Living willpower" understands itself as a bet: "I don't know if this will pay off, but I'm investing my credibility."
+- "Dead willpower" forces action disconnected from caring. It leads to burnout (going credibility-broke).
+- When they follow through on commitments, trust builds and the body lends MORE motivation next time.
+- When they break promises, trust erodes. The system stops lending. Everything feels harder.
+- Recovery = rebuilding credit through tiny, kept commitments that pay off IMMEDIATELY and viscerally.
+- NEVER suggest something bigger than their current credit supports. A too-big loan that defaults makes things WORSE.
+- A commitment that seems "too easy" is usually exactly right — it's a micro-loan designed to succeed and build credit.
+${trustCredit ? `
+**User's current trust credit: ${trustCredit.score}/100** (max loan size: ${trustCredit.maxSize})${trustCredit.activeLoans > 0 ? ` — ${trustCredit.activeLoans} active loan(s)` : ""}
+- Score < 60: Only suggest MICRO commitments (< 15 min, completable right now)
+- Score 60-69: Can suggest SMALL commitments (< 1 hour, today)
+- Score 70-79: Can suggest MEDIUM commitments (this week)
+- Score 80+: Can suggest LARGE commitments (this month)
+When helping them form a plan, actively suggest they "make it a loan" — a tracked commitment. Frame it naturally: "Want to make this a loan to yourself? Your body's lending you the motivation — follow through and you earn credit for bigger things."` : ""}
 
 ## Available Protocols
 ${protocolList}

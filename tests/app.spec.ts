@@ -35,7 +35,7 @@ test.describe("Core UI", () => {
   });
 
   test("shows protocol picker when no active session", async ({ page }) => {
-    await expect(page.getByText("What's going on?")).toBeVisible();
+    await expect(page.getByText("What if I could solve all my problems?")).toBeVisible();
     await expect(page.getByText("Just talk to me")).toBeVisible();
   });
 
@@ -53,7 +53,7 @@ test.describe("Core UI", () => {
     await expect(page.getByText("Time Horizon / Motivation")).toBeVisible();
   });
 
-  test("shows new protocols (JournalSpeak, Locally Optimal, Burbea)", async ({
+  test("shows new protocols (JournalSpeak, Locally Optimal, Burbea, Replacing Fear)", async ({
     page,
   }) => {
     await expect(page.getByText("JournalSpeak")).toBeVisible();
@@ -62,6 +62,9 @@ test.describe("Core UI", () => {
     ).toBeVisible();
     await expect(
       page.getByText("Ways of Looking (Rob Burbea)")
+    ).toBeVisible();
+    await expect(
+      page.getByText("Replacing Fear (Trust Loans)")
     ).toBeVisible();
   });
 
@@ -106,7 +109,7 @@ test.describe("Navigation", () => {
     await expect(page.getByText("AI Configuration")).toBeVisible();
 
     await page.keyboard.press("Escape");
-    await expect(page.getByText("What's going on?")).toBeVisible();
+    await expect(page.getByText("Just talk to me")).toBeVisible();
   });
 
   test("Escape returns from diagnostic to chat", async ({ page }) => {
@@ -114,7 +117,7 @@ test.describe("Navigation", () => {
     await expect(page.getByText("Diagnostic Model")).toBeVisible();
 
     await page.keyboard.press("Escape");
-    await expect(page.getByText("What's going on?")).toBeVisible();
+    await expect(page.getByText("Just talk to me")).toBeVisible();
   });
 });
 
@@ -130,6 +133,13 @@ test.describe("Settings", () => {
     await expect(page.getByText("Your Data")).toBeVisible();
     await expect(page.getByText("Total Sessions")).toBeVisible();
     await expect(page.getByText("Follow-through Rate")).toBeVisible();
+  });
+
+  test("shows trust credit section", async ({ page }) => {
+    await page.locator('button[title*="Settings"]').click();
+    await expect(page.getByText("Trust Credit")).toBeVisible();
+    await expect(page.getByText("Credit Score")).toBeVisible();
+    await expect(page.getByText("Max Loan Size")).toBeVisible();
   });
 
   test("shows fal.ai API key field", async ({ page }) => {
@@ -183,7 +193,7 @@ test.describe("Task Dump", () => {
     await page.locator('button[title*="Task Dump"]').click();
     await expect(page.getByText("Task Dump")).toBeVisible();
     await page.keyboard.press("Escape");
-    await expect(page.getByText("What's going on?")).toBeVisible();
+    await expect(page.getByText("Just talk to me")).toBeVisible();
   });
 });
 

@@ -86,6 +86,19 @@ export interface DiagnosticReport {
 // Trust Economy Types
 // ============================================================================
 
+export type LoanSize = "micro" | "small" | "medium" | "large";
+
+export interface TrustLoan {
+  id: string;
+  commitment: string;
+  size: LoanSize;
+  createdAt: string;
+  dueBy: string;
+  status: "active" | "kept" | "broken" | "expired";
+  resolvedAt: string | null;
+  sessionId: string | null;
+}
+
 export interface TrustMetrics {
   date: string; // YYYY-MM-DD
   promisesMade: number;
@@ -124,7 +137,7 @@ export interface TaskDumpResult {
 
 export interface RewardEvent {
   id: string;
-  type: "session_complete" | "follow_through" | "streak" | "experiment";
+  type: "session_complete" | "follow_through" | "streak" | "experiment" | "loan_kept";
   amount: number;
   description: string;
   timestamp: string;

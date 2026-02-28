@@ -1,5 +1,6 @@
 import { useSettingsStore } from "../store/settingsStore";
 import { useHistoryStore } from "../store/historyStore";
+import { useTrustStore, LOAN_THRESHOLDS } from "../store/trustStore";
 import type { AIProvider } from "../models/types";
 
 interface SettingsProps {
@@ -9,6 +10,8 @@ interface SettingsProps {
 export function Settings({ onClose }: SettingsProps) {
   const settings = useSettingsStore();
   const { sessions } = useHistoryStore();
+  const trust = useTrustStore();
+  const loanStats = trust.getLoanStats();
 
   const completedSessions = sessions.filter((s) => s.status === "completed");
   const followedThrough = completedSessions.filter(
@@ -181,6 +184,97 @@ export function Settings({ onClose }: SettingsProps) {
                 : 0}
               %
             </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Trust Credit */}
+      <div className="space-y-3">
+        <div className="category-label">Trust Credit</div>
+        <div className="astral-stat p-4 space-y-3">
+          <div className="flex justify-between items-baseline">
+            <span
+              className="text-xs"
+              style={{ color: "var(--astral-text-dim)" }}
+            >
+              Credit Score
+            </span>
+            <span
+              className="text-lg font-light font-mono"
+              style={{
+                color:
+                  trust.creditScore >= 70
+                    ? "rgb(100, 255, 180)"
+                    : trust.creditScore >= 50
+                      ? "var(--astral-accent)"
+                      : "rgb(255, 180, 100)",
+              }}
+            >
+              {trust.creditScore}
+            </span>
+          </div>
+          <div className="flex justify-between items-baseline">
+            <span
+              className="text-xs"
+              style={{ color: "var(--astral-text-dim)" }}
+            >
+              Max Loan Size
+            </span>
+            <span
+              className="text-sm font-mono"
+              style={{ color: "var(--astral-accent)" }}
+            >
+              {trust.getMaxLoanSize()}
+            </span>
+          </div>
+          <div className="flex justify-between items-baseline">
+            <span
+              className="text-xs"
+              style={{ color: "var(--astral-text-dim)" }}
+            >
+              Loans Kept / Total
+            </span>
+            <span
+              className="text-sm font-light"
+              style={{ color: "var(--astral-text)" }}
+            >
+              {loanStats.kept} / {loanStats.total}
+              {loanStats.total > 0 && (
+                <span
+                  className="text-xs ml-1"
+                  style={{ color: "var(--astral-text-dim)" }}
+                >
+                  ({loanStats.rate}%)
+                </span>
+              )}
+            </span>
+          </div>
+
+          {/* Credit thresholds */}
+          <div className="pt-2 space-y-1">
+            {(["micro", "small", "medium", "large"] as const).map((size) => {
+              const threshold = LOAN_THRESHOLDS[size];
+              const unlocked = trust.creditScore >= threshold;
+              return (
+                <div
+                  key={size}
+                  className="flex justify-between text-[10px]"
+                  style={{
+                    color: unlocked
+                      ? "var(--astral-text)"
+                      : "var(--astral-text-dim)",
+                    opacity: unlocked ? 1 : 0.5,
+                  }}
+                >
+                  <span>
+                    {unlocked ? "●" : "○"} {size}
+                  </span>
+                  <span className="font-mono">
+                    {threshold === 0 ? "always" : `≥ ${threshold}`}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
