@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useAvatarStore } from "../store/avatarStore";
 import {
   generateImage,
@@ -43,22 +43,28 @@ export function Avatar(_props: AvatarProps) {
  * Call this after an AI response completes to update the avatar.
  */
 export function useAvatarUpdate() {
-  const { setImage, setGenerating, setMood, setError, lastGeneratedAt } =
+  const { setImage, setGenerating, setMood, setError } =
     useAvatarStore();
+
+  // Use ref for throttle timestamp to avoid stale closure issue
+  const lastGeneratedRef = useRef<number>(0);
+  const generatingRef = useRef(false);
 
   const updateAvatar = useCallback(
     async (responseText: string, falApiKey: string) => {
       if (!falApiKey) return;
 
+      // Guard: skip if already generating (prevents race conditions)
+      if (generatingRef.current) return;
+
       const mood = detectMoodFromResponse(responseText);
       setMood(mood);
 
       // Throttle: don't regenerate more than once per 30 seconds
-      if (lastGeneratedAt) {
-        const elapsed = Date.now() - new Date(lastGeneratedAt).getTime();
-        if (elapsed < 30000) return;
-      }
+      const elapsed = Date.now() - lastGeneratedRef.current;
+      if (elapsed < 30000) return;
 
+      generatingRef.current = true;
       setGenerating(true);
       try {
         const prompt = buildAvatarPrompt(mood);
@@ -68,12 +74,15 @@ export function useAvatarUpdate() {
           numInferenceSteps: 4,
         });
         setImage(result.url, mood);
+        lastGeneratedRef.current = Date.now();
       } catch (err) {
         console.error("Avatar generation failed:", err);
         setError(err instanceof Error ? err.message : "Avatar generation failed");
+      } finally {
+        generatingRef.current = false;
       }
     },
-    [setImage, setGenerating, setMood, setError, lastGeneratedAt]
+    [setImage, setGenerating, setMood, setError]
   );
 
   return { updateAvatar };

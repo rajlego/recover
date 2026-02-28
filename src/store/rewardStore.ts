@@ -52,14 +52,15 @@ export const useRewardStore = create<RewardState>()(
       },
 
       updateStreak: () => {
-        const today = new Date().toISOString().split("T")[0];
+        // Use local date (not UTC) so streaks align with user's actual day
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
         const { lastSessionDate, streak } = get();
 
         if (lastSessionDate === today) return; // Already counted today
 
-        const yesterday = new Date(Date.now() - 86400000)
-          .toISOString()
-          .split("T")[0];
+        const yd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+        const yesterday = `${yd.getFullYear()}-${String(yd.getMonth() + 1).padStart(2, "0")}-${String(yd.getDate()).padStart(2, "0")}`;
 
         if (lastSessionDate === yesterday) {
           // Consecutive day — streak continues

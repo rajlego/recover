@@ -34,7 +34,7 @@ export function App() {
         switchView("diagnostic");
         return;
       }
-      if (e.metaKey && e.shiftKey && (e.key === "t" || e.key === "T")) {
+      if (e.metaKey && e.shiftKey && (e.key === "k" || e.key === "K")) {
         e.preventDefault();
         switchView("tasks");
         return;
@@ -114,7 +114,7 @@ export function App() {
                     : "var(--astral-text-dim)",
               }}
               onClick={() => switchView("tasks")}
-              title="Task Dump (Cmd+Shift+T)"
+              title="Task Dump (Cmd+Shift+K)"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

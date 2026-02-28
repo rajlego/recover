@@ -95,10 +95,10 @@ export function TaskDump({ onClose }: TaskDumpProps) {
     setPhase("input");
   }, []);
 
-  // Count original lines as tasks for verification
-  const originalTaskCount = rawInput
-    .split("\n")
-    .filter((l) => l.trim()).length;
+  // Verification: compare original line indices against categorized task indices
+  const originalLines = rawInput.split("\n").filter((l) => l.trim());
+  const originalTaskCount = originalLines.length;
+  const originalIndices = new Set(originalLines.map((_, i) => i + 1));
 
   const categorizedTaskCount = pendingResult
     ? pendingResult.categories.reduce(
@@ -106,6 +106,19 @@ export function TaskDump({ onClose }: TaskDumpProps) {
         0
       )
     : 0;
+
+  // Check that every original line index appears in categorized output
+  const categorizedIndices = pendingResult
+    ? new Set(
+        pendingResult.categories.flatMap((cat) =>
+          cat.tasks.map((t) => t.originalIndex)
+        )
+      )
+    : new Set<number>();
+
+  const allIndicesMatch =
+    categorizedTaskCount === originalTaskCount &&
+    [...originalIndices].every((i) => categorizedIndices.has(i));
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-4 overflow-y-auto h-full">
@@ -214,33 +227,30 @@ research flights for march...`}
           <div
             className="astral-stat p-3 flex items-center justify-between"
             style={{
-              borderColor:
-                categorizedTaskCount === originalTaskCount
-                  ? "rgba(100, 255, 180, 0.3)"
-                  : "rgba(255, 100, 100, 0.3)",
+              borderColor: allIndicesMatch
+                ? "rgba(100, 255, 180, 0.3)"
+                : "rgba(255, 100, 100, 0.3)",
             }}
           >
             <span className="text-xs" style={{ color: "var(--astral-text)" }}>
-              {categorizedTaskCount === originalTaskCount ? (
+              {allIndicesMatch ? (
                 <>
                   All {categorizedTaskCount} tasks accounted for
                 </>
               ) : (
                 <>
                   Warning: {originalTaskCount} lines in, {categorizedTaskCount}{" "}
-                  tasks out
+                  tasks out — check line numbers
                 </>
               )}
             </span>
             <span
               className="text-xs font-mono px-2 py-0.5 rounded"
               style={{
-                background:
-                  categorizedTaskCount === originalTaskCount
+                background: allIndicesMatch
                     ? "rgba(100, 255, 180, 0.1)"
                     : "rgba(255, 100, 100, 0.1)",
-                color:
-                  categorizedTaskCount === originalTaskCount
+                color: allIndicesMatch
                     ? "rgb(100, 255, 180)"
                     : "rgb(255, 100, 100)",
               }}
@@ -250,7 +260,7 @@ research flights for march...`}
           </div>
 
           {/* Side by side: original + categorized */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Original */}
             <div className="space-y-2">
               <div className="category-label">Original (your input)</div>

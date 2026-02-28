@@ -14,7 +14,7 @@ export const useTaskStore = create<TaskState>()(
     (set) => ({
       dumps: [],
       addDump: (dump) =>
-        set((s) => ({ dumps: [dump, ...s.dumps] })),
+        set((s) => ({ dumps: [dump, ...s.dumps].slice(0, 50) })),
       approveDump: (id) =>
         set((s) => ({
           dumps: s.dumps.map((d) =>
