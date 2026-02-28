@@ -118,6 +118,31 @@ export function Settings({ onClose }: SettingsProps) {
             onChange={(e) => settings.setGeminiModel(e.target.value)}
           />
         </div>
+
+        <div className="space-y-1">
+          <label
+            className="text-xs block"
+            style={{ color: "var(--astral-text-dim)" }}
+          >
+            fal.ai API Key (avatar generation)
+          </label>
+          <input
+            type="password"
+            className="astral-input w-full rounded-lg px-3 py-2 text-sm outline-none"
+            value={settings.falApiKey}
+            onChange={(e) => settings.setFalApiKey(e.target.value)}
+            placeholder="key:secret"
+          />
+          <a
+            href="https://fal.ai/dashboard/keys"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs hover:underline"
+            style={{ color: "var(--astral-accent)" }}
+          >
+            Get a fal.ai key
+          </a>
+        </div>
       </div>
 
       {/* Stats */}

@@ -7,6 +7,7 @@ import { buildSystemPrompt } from "../ai/systemPrompt";
 import { getProtocolById } from "../protocols";
 import { MarkdownContent } from "./MarkdownContent";
 import { ProtocolPicker } from "./ProtocolPicker";
+import { Avatar, useAvatarUpdate } from "./Avatar";
 import type { LLMMessage } from "../models/types";
 
 export function Chat() {
@@ -29,6 +30,7 @@ export function Chat() {
 
   const settings = useSettingsStore();
   const { sessions: historySessions, addSession } = useHistoryStore();
+  const { updateAvatar } = useAvatarUpdate();
 
   const messages = getMessages();
   const hasApiKey = !!(settings.geminiApiKey || settings.openRouterApiKey);
@@ -112,10 +114,13 @@ export function Chat() {
           }
         }
 
-        updateMessage(
-          assistantMsgId,
-          fullContent || "I'm here. What's going on?"
-        );
+        const finalContent = fullContent || "I'm here. What's going on?";
+        updateMessage(assistantMsgId, finalContent);
+
+        // Update avatar mood/image based on response
+        if (settings.falApiKey && finalContent) {
+          updateAvatar(finalContent, settings.falApiKey);
+        }
       } catch (err) {
         const errorMsg =
           err instanceof Error ? err.message : "Something went wrong";
@@ -243,25 +248,36 @@ export function Chat() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Protocol indicator */}
-      {activeSession.protocolId && (
-        <div
-          className="px-5 py-1.5 shrink-0"
-          style={{
-            borderBottom: "1px solid var(--astral-border)",
-            background: "rgba(8, 11, 22, 0.4)",
-          }}
-        >
-          <div className="max-w-2xl mx-auto">
+      {/* Session bar: avatar + protocol indicator */}
+      <div
+        className="px-5 py-2 shrink-0"
+        style={{
+          borderBottom: "1px solid var(--astral-border)",
+          background: "rgba(8, 11, 22, 0.4)",
+        }}
+      >
+        <div className="max-w-2xl mx-auto flex items-center gap-3">
+          {settings.falApiKey && (
+            <Avatar falApiKey={settings.falApiKey} />
+          )}
+          {activeSession.protocolId && (
             <span
               className="text-xs font-medium tracking-wide"
               style={{ color: "var(--astral-accent)" }}
             >
               {getProtocolById(activeSession.protocolId)?.name}
             </span>
-          </div>
+          )}
+          {!activeSession.protocolId && (
+            <span
+              className="text-xs tracking-wide"
+              style={{ color: "var(--astral-text-dim)" }}
+            >
+              free talk
+            </span>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
@@ -281,7 +297,7 @@ export function Chat() {
                   }`}
                 >
                   {msg.role === "assistant" ? (
-                    <div className="relative astral-prose">
+                    <div className={`relative astral-prose ${streamingMsgId === msg.id ? "streaming-active" : ""}`}>
                       {msg.content ? (
                         <MarkdownContent content={msg.content} />
                       ) : null}

@@ -9,6 +9,7 @@ async function seedSettings(page: import("@playwright/test").Page) {
         state: {
           geminiApiKey: "test-key-for-testing",
           openRouterApiKey: "",
+          falApiKey: "",
           primaryProvider: "gemini",
           geminiModel: "gemini-2.0-flash",
           openRouterModel: "google/gemini-2.0-flash-001",
@@ -50,6 +51,15 @@ test.describe("Core UI", () => {
     await expect(page.getByText("Overwhelm Breakdown")).toBeVisible();
     await expect(page.getByText("Gendlin's Focusing")).toBeVisible();
     await expect(page.getByText("Time Horizon / Motivation")).toBeVisible();
+  });
+
+  test("shows new protocols (JournalSpeak, Locally Optimal)", async ({
+    page,
+  }) => {
+    await expect(page.getByText("JournalSpeak")).toBeVisible();
+    await expect(
+      page.getByText("Locally Optimal (Unlearning)")
+    ).toBeVisible();
   });
 
   test("has input field for free-form typing", async ({ page }) => {
@@ -119,6 +129,15 @@ test.describe("Settings", () => {
     await expect(page.getByText("Follow-through Rate")).toBeVisible();
   });
 
+  test("shows fal.ai API key field", async ({ page }) => {
+    await page.locator('button[title*="Settings"]').click();
+    const falInput = page.locator('input[placeholder="key:secret"]');
+    await expect(falInput).toBeVisible();
+    await expect(
+      page.getByText("fal.ai API Key (avatar generation)")
+    ).toBeVisible();
+  });
+
   test("API key input persists across navigation", async ({ page }) => {
     await page.locator('button[title*="Settings"]').click();
 
@@ -144,6 +163,7 @@ test.describe("No API Key State", () => {
           state: {
             geminiApiKey: "",
             openRouterApiKey: "",
+            falApiKey: "",
             primaryProvider: "gemini",
             geminiModel: "gemini-2.0-flash",
             openRouterModel: "google/gemini-2.0-flash-001",

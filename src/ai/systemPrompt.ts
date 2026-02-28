@@ -33,7 +33,21 @@ Steps to guide through:
 ${activeProtocol.steps.map((s, i) => `${i + 1}. ${s.instruction} (${s.type})${s.repeatCount ? ` — repeat ${s.repeatCount}x` : ""}`).join("\n")}`
     : "";
 
+  const now = new Date();
+  const timeContext = `Current time: ${now.toLocaleString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  })}`;
+
   return `You are a gentle, competent recovery companion. The user has come to you because they feel stuck, overwhelmed, or unsure what to do.
+
+## Context
+${timeContext}
 
 You are NOT a productivity tool. You are NOT a therapist. You are a supportive guide who helps the user reconnect with their own clarity.
 

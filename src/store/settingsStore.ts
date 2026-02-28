@@ -6,6 +6,7 @@ interface SettingsState {
   // AI
   geminiApiKey: string;
   openRouterApiKey: string;
+  falApiKey: string;
   primaryProvider: AIProvider;
   geminiModel: string;
   openRouterModel: string;
@@ -13,6 +14,7 @@ interface SettingsState {
   // Actions
   setGeminiApiKey: (key: string) => void;
   setOpenRouterApiKey: (key: string) => void;
+  setFalApiKey: (key: string) => void;
   setPrimaryProvider: (provider: AIProvider) => void;
   setGeminiModel: (model: string) => void;
   setOpenRouterModel: (model: string) => void;
@@ -23,12 +25,14 @@ export const useSettingsStore = create<SettingsState>()(
     (set) => ({
       geminiApiKey: import.meta.env.VITE_GOOGLE_AI_API_KEY || "",
       openRouterApiKey: import.meta.env.VITE_OPENROUTER_API_KEY || "",
+      falApiKey: import.meta.env.VITE_FAL_API_KEY || "",
       primaryProvider: "gemini",
       geminiModel: "gemini-2.0-flash",
       openRouterModel: "google/gemini-2.0-flash-001",
 
       setGeminiApiKey: (key) => set({ geminiApiKey: key }),
       setOpenRouterApiKey: (key) => set({ openRouterApiKey: key }),
+      setFalApiKey: (key) => set({ falApiKey: key }),
       setPrimaryProvider: (provider) => set({ primaryProvider: provider }),
       setGeminiModel: (model) => set({ geminiModel: model }),
       setOpenRouterModel: (model) => set({ openRouterModel: model }),
