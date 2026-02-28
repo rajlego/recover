@@ -197,6 +197,7 @@ export function Settings({ onClose }: SettingsProps) {
             ["New line", "Shift+Enter"],
             ["Settings", "Cmd+Shift+,"],
             ["Diagnostic Model", "Cmd+Shift+D"],
+            ["Task Dump", "Cmd+Shift+T"],
             ["Close / Back", "Escape"],
           ].map(([action, key]) => (
             <div key={action} className="flex justify-between">

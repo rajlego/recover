@@ -53,12 +53,15 @@ test.describe("Core UI", () => {
     await expect(page.getByText("Time Horizon / Motivation")).toBeVisible();
   });
 
-  test("shows new protocols (JournalSpeak, Locally Optimal)", async ({
+  test("shows new protocols (JournalSpeak, Locally Optimal, Burbea)", async ({
     page,
   }) => {
     await expect(page.getByText("JournalSpeak")).toBeVisible();
     await expect(
       page.getByText("Locally Optimal (Unlearning)")
+    ).toBeVisible();
+    await expect(
+      page.getByText("Ways of Looking (Rob Burbea)")
     ).toBeVisible();
   });
 
@@ -149,6 +152,38 @@ test.describe("Settings", () => {
     await page.locator('button[title*="Settings"]').click();
 
     await expect(geminiInput).toHaveValue("AIzaTest123");
+  });
+});
+
+test.describe("Task Dump", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/");
+    await seedSettings(page);
+    await page.reload();
+  });
+
+  test("opens task dump panel via button", async ({ page }) => {
+    await page.locator('button[title*="Task Dump"]').click();
+    await expect(page.getByText("Task Dump")).toBeVisible();
+    await expect(
+      page.getByText("Dump everything here")
+    ).toBeVisible();
+  });
+
+  test("shows textarea for task input", async ({ page }) => {
+    await page.locator('button[title*="Task Dump"]').click();
+    const textarea = page.locator("textarea");
+    await expect(textarea).toBeVisible();
+    await expect(
+      page.getByText("Categorize")
+    ).toBeVisible();
+  });
+
+  test("Escape returns from task dump to chat", async ({ page }) => {
+    await page.locator('button[title*="Task Dump"]').click();
+    await expect(page.getByText("Task Dump")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.getByText("What's going on?")).toBeVisible();
   });
 });
 

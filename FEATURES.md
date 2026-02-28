@@ -2,7 +2,7 @@
 
 ## Implemented (Phase 1)
 - [x] Chat with Gemini Flash (streaming, OpenRouter fallback)
-- [x] 13 structured protocols (decision waffling, overwhelm, focusing, Art of Accomplishment, JournalSpeak, Locally Optimal)
+- [x] 14 structured protocols (decision waffling, overwhelm, focusing, Art of Accomplishment, JournalSpeak, Locally Optimal, Ways of Looking)
 - [x] Protocol picker with categories
 - [x] Protocol select triggers AI greeting
 - [x] Diagnostic Model (Dalio-style pattern analysis)
@@ -16,11 +16,14 @@
 - [x] JournalSpeak / expressive writing protocol (Nicole Sachs + Pennebaker research)
 - [x] Chris Lakin "Locally Optimal" unlearning protocol
 - [x] fal.ai companion avatar generation (mood-reactive, pixel art style)
+- [x] Task dumping with AI categorization (side-by-side transparency view, original line numbers preserved)
+- [x] Stardust reward system (points for session completion, streak tracking)
+- [x] Rob Burbea "Ways of Looking" protocol (energy body + emptiness lenses + imaginal practice)
+- [x] Playwright e2e tests (18 passing)
 
 ## In Progress / Next
-- [ ] Task dumping + auto-sorting into categorized document
-- [ ] Reward system with fake currency
-- [ ] Robberbea mental prompting protocol
+- [ ] Push to remote
+- [ ] Codex adversarial review
 
 ## Queued Features
 ### Task Management
@@ -46,7 +49,7 @@
 - Naval Ravikant
 - Michael (Plus3Happiness)
 - Chris Lakin (locally optimal, recursive wanting) — ACTIVE (protocol built)
-- Robert Bea (Robberbea)
+- Rob Burbea (ways of looking, imaginal practice, soulmaking dharma) — ACTIVE (protocol built)
 - Joe Hudson / Art of Accomplishment — ACTIVE
 - The Buddha / Theravada texts
 - Vajrayana texts
@@ -59,7 +62,7 @@
 ### Protocols to Add
 - [x] JournalSpeak (20 min expressive writing + 10 min soothing) — DONE
 - [x] Chris Lakin "Locally Optimal" unlearning — DONE
-- [ ] Robberbea mental prompting
+- [x] Rob Burbea "Ways of Looking" — DONE
 - [ ] Scenario quick-pick menu (fast "I'm having trouble with ___")
 - [ ] Vibe coding trap detection (nudge when stuck in one mode too long)
 

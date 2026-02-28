@@ -95,6 +95,42 @@ export interface TrustMetrics {
 }
 
 // ============================================================================
+// Task Dump Types
+// ============================================================================
+
+export interface TaskItem {
+  id: string;
+  text: string;
+  category: string;
+  originalIndex: number; // Position in the original dump
+}
+
+export interface TaskCategory {
+  name: string;
+  tasks: TaskItem[];
+}
+
+export interface TaskDumpResult {
+  id: string;
+  rawInput: string;
+  categories: TaskCategory[];
+  createdAt: string;
+  approved: boolean;
+}
+
+// ============================================================================
+// Reward / Currency Types
+// ============================================================================
+
+export interface RewardEvent {
+  id: string;
+  type: "session_complete" | "follow_through" | "streak" | "experiment";
+  amount: number;
+  description: string;
+  timestamp: string;
+}
+
+// ============================================================================
 // AI Types
 // ============================================================================
 

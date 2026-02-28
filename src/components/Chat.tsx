@@ -8,6 +8,7 @@ import { getProtocolById } from "../protocols";
 import { MarkdownContent } from "./MarkdownContent";
 import { ProtocolPicker } from "./ProtocolPicker";
 import { Avatar, useAvatarUpdate } from "./Avatar";
+import { useRewardStore, REWARDS } from "../store/rewardStore";
 import type { LLMMessage } from "../models/types";
 
 export function Chat() {
@@ -31,6 +32,7 @@ export function Chat() {
   const settings = useSettingsStore();
   const { sessions: historySessions, addSession } = useHistoryStore();
   const { updateAvatar } = useAvatarUpdate();
+  const { addReward, updateStreak } = useRewardStore();
 
   const messages = getMessages();
   const hasApiKey = !!(settings.geminiApiKey || settings.openRouterApiKey);
@@ -168,9 +170,17 @@ export function Chat() {
   const handleNewSession = useCallback(() => {
     if (activeSession) {
       const completed = completeSession();
-      if (completed) addSession(completed);
+      if (completed) {
+        addSession(completed);
+        addReward(
+          "session_complete",
+          REWARDS.session_complete,
+          "Completed a recovery session"
+        );
+        updateStreak();
+      }
     }
-  }, [activeSession, completeSession, addSession]);
+  }, [activeSession, completeSession, addSession, addReward, updateStreak]);
 
   const handleProtocolSelect = useCallback(
     (protocolId: string | null) => {
