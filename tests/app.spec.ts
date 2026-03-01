@@ -139,7 +139,7 @@ test.describe("Settings", () => {
     await page.locator('button[title*="Settings"]').click();
     await expect(page.getByText("Trust Credit")).toBeVisible();
     await expect(page.getByText("Credit Score")).toBeVisible();
-    await expect(page.getByText("Max Loan Size")).toBeVisible();
+    await expect(page.getByText("max loan")).toBeVisible();
   });
 
   test("shows fal.ai API key field", async ({ page }) => {

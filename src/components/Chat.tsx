@@ -12,6 +12,17 @@ import { useRewardStore, REWARDS } from "../store/rewardStore";
 import { useTrustStore } from "../store/trustStore";
 import type { LLMMessage } from "../models/types";
 
+function timeRemaining(dueBy: string): string {
+  const ms = new Date(dueBy).getTime() - Date.now();
+  if (ms <= 0) return "overdue";
+  const mins = Math.floor(ms / 60000);
+  if (mins < 60) return `${mins}m left`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h left`;
+  const days = Math.floor(hours / 24);
+  return `${days}d left`;
+}
+
 export function Chat() {
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -38,6 +49,7 @@ export function Chat() {
 
   const [showLoanPrompt, setShowLoanPrompt] = useState(false);
   const [loanCommitment, setLoanCommitment] = useState("");
+  const [loanFlash, setLoanFlash] = useState<string | null>(null);
 
   // Expire overdue loans on mount
   useEffect(() => {
@@ -382,6 +394,22 @@ export function Chat() {
         </div>
       </div>
 
+      {/* Loan kept flash */}
+      {loanFlash && (
+        <div className="px-4 pb-1">
+          <div
+            className="max-w-2xl mx-auto text-center text-xs py-1.5 rounded-lg animate-pulse"
+            style={{
+              background: "rgba(100, 255, 180, 0.1)",
+              color: "rgb(100, 255, 180)",
+              border: "1px solid rgba(100, 255, 180, 0.2)",
+            }}
+          >
+            {loanFlash}
+          </div>
+        </div>
+      )}
+
       {/* Active loans banner */}
       {trustStore.getActiveLoans().length > 0 && !showLoanPrompt && (
         <div className="px-4 pb-1">
@@ -407,6 +435,18 @@ export function Chat() {
                     {loan.size.toUpperCase()}
                   </span>
                   {loan.commitment}
+                  <span
+                    className="font-mono ml-1.5"
+                    style={{
+                      fontSize: "9px",
+                      color: timeRemaining(loan.dueBy) === "overdue"
+                        ? "rgb(255, 140, 140)"
+                        : "var(--astral-text-dim)",
+                      opacity: 0.7,
+                    }}
+                  >
+                    {timeRemaining(loan.dueBy)}
+                  </span>
                 </span>
                 <div className="flex gap-1 ml-2 shrink-0">
                   <button
@@ -418,6 +458,8 @@ export function Chat() {
                     onClick={() => {
                       trustStore.resolveLoan(loan.id, "kept");
                       addReward("loan_kept", 5, `Kept loan: ${loan.commitment}`);
+                      setLoanFlash(`+${loan.size === "micro" ? 3 : loan.size === "small" ? 5 : loan.size === "medium" ? 8 : 12} credit — nice!`);
+                      setTimeout(() => setLoanFlash(null), 2000);
                     }}
                   >
                     kept
