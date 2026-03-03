@@ -8,9 +8,13 @@ Recovery companion web app — helps when you feel stuck, overwhelmed, or unsure
 - Zustand for state management
 - Google AI Studio (Gemini Flash) primary, OpenRouter fallback
 
-## Domain
-- Production: recover.jp.net
-- Dev: http://localhost:5173
+## Deployment
+- **Hosting**: Firebase Hosting (project: `recover-companion`)
+- **Deploy command**: `npm run build && firebase deploy --only hosting --project recover-companion`
+- **Production URL**: https://recover-companion.web.app
+- **Custom domain**: recover.jp.net (needs setup in Firebase console)
+- **Dev**: http://localhost:5173
+- **GitHub**: https://github.com/rajlego/recover
 
 ## Key Architecture
 - `src/ai/` — AI service layer with Gemini + OpenRouter streaming
