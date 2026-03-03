@@ -1,0 +1,21 @@
+{
+  "name": "Recover",
+  "short_name": "Recover",
+  "description": "Recovery companion — helps when you feel stuck, overwhelmed, or unsure what to do",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080b16",
+  "theme_color": "#080b16",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
