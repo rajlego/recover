@@ -142,6 +142,9 @@ export const useSessionStore = create<SessionState>()(
     {
       name: "recover-active-session",
       storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        activeSession: state.activeSession,
+      }),
     }
   )
 );

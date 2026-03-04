@@ -11,9 +11,11 @@ const categoryLabels: Record<ProtocolCategory, string> = {
   motivation: "Motivation",
   "self-inquiry": "Self-Inquiry",
   focusing: "Somatic / Focusing",
+  productivity: "Productivity",
 };
 
 const categoryOrder: ProtocolCategory[] = [
+  "productivity",
   "decision",
   "overwhelm",
   "motivation",

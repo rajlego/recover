@@ -7,6 +7,7 @@ import { journalSpeakProtocol } from "./journalSpeak";
 import { locallyOptimalProtocol } from "./locallyOptimal";
 import { waysOfLookingProtocol } from "./waysOfLooking";
 import { replacingFearProtocol } from "./replacingFear";
+import { focusedBlockProtocol } from "./focusedBlock";
 import type { Protocol, ProtocolCategory } from "../models/types";
 
 export const protocols: Protocol[] = [
@@ -19,6 +20,7 @@ export const protocols: Protocol[] = [
   locallyOptimalProtocol,
   waysOfLookingProtocol,
   replacingFearProtocol,
+  focusedBlockProtocol,
 ];
 
 export function getProtocolById(id: string): Protocol | undefined {

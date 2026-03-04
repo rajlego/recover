@@ -5,12 +5,28 @@ import { DiagnosticPanel } from "./components/DiagnosticPanel";
 import { TaskDump } from "./components/TaskDump";
 import { Starfield } from "./components/Starfield";
 import { useRewardStore } from "./store/rewardStore";
+import { useSessionStore } from "./store/sessionStore";
 
 type View = "chat" | "settings" | "diagnostic" | "tasks";
 
 export function App() {
   const [view, setView] = useState<View>("chat");
   const { balance, streak } = useRewardStore();
+
+  // Wait for Zustand stores to rehydrate from localStorage before rendering.
+  // Without this, there's a flash where activeSession is null (showing protocol picker)
+  // before the persisted session loads.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    const unsub = useSessionStore.persist.onFinishHydration(() => {
+      setHydrated(true);
+    });
+    // If already hydrated (synchronous localStorage), set immediately
+    if (useSessionStore.persist.hasHydrated()) {
+      setHydrated(true);
+    }
+    return unsub;
+  }, []);
 
   const switchView = useCallback(
     (target: View) => setView((v) => (v === target ? "chat" : target)),
@@ -43,6 +59,17 @@ export function App() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [view, switchView]);
+
+  if (!hydrated) {
+    return (
+      <>
+        <Starfield />
+        <div className="app-shell flex items-center justify-center">
+          <span className="loading loading-spinner loading-sm" style={{ color: "var(--astral-accent)" }} />
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
