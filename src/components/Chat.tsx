@@ -183,7 +183,7 @@ export function Chat() {
       if (inputRef.current) inputRef.current.style.height = "auto";
 
       addMessage("user", userText);
-      await streamResponse(userText, protocolId);
+      await streamResponse(undefined, protocolId);
     },
     [isStreaming, hasApiKey, activeSession, startSession, addMessage, streamResponse]
   );
