@@ -4,37 +4,76 @@
       <stop offset="0%" stop-color="#0d1228"/>
       <stop offset="100%" stop-color="#080b16"/>
     </linearGradient>
-    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#b49cff"/>
-      <stop offset="50%" stop-color="#7c9cff"/>
-      <stop offset="100%" stop-color="#5a7cee"/>
+    <linearGradient id="petal" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#5a6cee"/>
+      <stop offset="60%" stop-color="#9c8cff"/>
+      <stop offset="100%" stop-color="#c8b8ff"/>
+    </linearGradient>
+    <linearGradient id="inner" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#7c6cdd"/>
+      <stop offset="100%" stop-color="#e0d4ff"/>
+    </linearGradient>
+    <linearGradient id="center-glow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%"
+      gradientUnits="userSpaceOnUse" x1="256" y1="220" x2="256" y2="280">
+      <stop offset="0%" stop-color="#fff8ff"/>
+      <stop offset="100%" stop-color="#c8b8ff"/>
     </linearGradient>
     <filter id="soft">
-      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feGaussianBlur stdDeviation="6" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
   </defs>
-  <!-- Background circle -->
+
+  <!-- Background -->
   <circle cx="256" cy="256" r="256" fill="url(#bg)"/>
-  <!-- Subtle star dots -->
-  <circle cx="120" cy="100" r="2" fill="#c8d0e8" opacity="0.3"/>
-  <circle cx="380" cy="80" r="1.5" fill="#c8d0e8" opacity="0.25"/>
-  <circle cx="410" cy="200" r="1.8" fill="#c8d0e8" opacity="0.2"/>
-  <circle cx="90" cy="350" r="1.5" fill="#c8d0e8" opacity="0.2"/>
-  <circle cx="400" cy="400" r="2" fill="#c8d0e8" opacity="0.15"/>
-  <!-- Rising arc — recovery path going upward -->
-  <path d="M140 340 Q180 380 220 340 Q260 300 300 310 Q340 320 370 270"
-        fill="none" stroke="url(#glow)" stroke-width="18" stroke-linecap="round"
-        filter="url(#soft)" opacity="0.9"/>
-  <!-- Bright point at the peak — where you're heading -->
-  <circle cx="370" cy="270" r="12" fill="#7c9cff" filter="url(#soft)"/>
-  <circle cx="370" cy="270" r="6" fill="#c8d0e8"/>
-  <!-- Small "origin" dot — where you started -->
-  <circle cx="140" cy="340" r="5" fill="#7c9cff" opacity="0.4"/>
-  <!-- "R" letterform, minimal -->
-  <text x="256" y="210" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif"
-        font-size="140" font-weight="200" fill="url(#glow)" letter-spacing="-4" opacity="0.95">r</text>
+
+  <!-- Subtle stars -->
+  <circle cx="100" cy="90" r="1.5" fill="#c8d0e8" opacity="0.25"/>
+  <circle cx="400" cy="75" r="1.2" fill="#c8d0e8" opacity="0.2"/>
+  <circle cx="420" cy="380" r="1.8" fill="#c8d0e8" opacity="0.15"/>
+  <circle cx="80" cy="400" r="1.3" fill="#c8d0e8" opacity="0.2"/>
+  <circle cx="340" cy="440" r="1" fill="#c8d0e8" opacity="0.15"/>
+  <circle cx="160" cy="430" r="1.5" fill="#c8d0e8" opacity="0.12"/>
+
+  <!-- Ambient glow behind flower -->
+  <circle cx="256" cy="260" r="100" fill="#7c6cdd" opacity="0.08" filter="url(#glow)"/>
+
+  <!-- Outer petals (5) — opening outward -->
+  <g filter="url(#soft)" opacity="0.85">
+    <!-- Top petal -->
+    <path d="M256 140 Q230 200 256 250 Q282 200 256 140Z" fill="url(#petal)"/>
+    <!-- Top-right petal -->
+    <path d="M340 175 Q290 210 270 260 Q310 230 340 175Z" fill="url(#petal)"/>
+    <!-- Top-left petal -->
+    <path d="M172 175 Q222 210 242 260 Q202 230 172 175Z" fill="url(#petal)"/>
+    <!-- Bottom-right petal -->
+    <path d="M350 290 Q300 270 265 265 Q310 290 350 290Z" fill="url(#petal)" opacity="0.6"/>
+    <!-- Bottom-left petal -->
+    <path d="M162 290 Q212 270 247 265 Q202 290 162 290Z" fill="url(#petal)" opacity="0.6"/>
+  </g>
+
+  <!-- Inner petals (3) — more luminous, tighter -->
+  <g filter="url(#soft)" opacity="0.95">
+    <path d="M256 175 Q240 215 256 250 Q272 215 256 175Z" fill="url(#inner)"/>
+    <path d="M220 200 Q238 225 250 255 Q228 230 220 200Z" fill="url(#inner)" opacity="0.8"/>
+    <path d="M292 200 Q274 225 262 255 Q284 230 292 200Z" fill="url(#inner)" opacity="0.8"/>
+  </g>
+
+  <!-- Center point — bright seed of awareness -->
+  <circle cx="256" cy="252" r="14" fill="#c8b8ff" opacity="0.3" filter="url(#glow)"/>
+  <circle cx="256" cy="252" r="7" fill="url(#center-glow)" filter="url(#soft)"/>
+  <circle cx="256" cy="252" r="3" fill="#ffffff"/>
+
+  <!-- Stem / root line — grounding downward -->
+  <path d="M256 268 Q256 320 252 370 Q250 390 256 400"
+        fill="none" stroke="#5a6cee" stroke-width="3" stroke-linecap="round" opacity="0.35"/>
+  <!-- Small leaves on stem -->
+  <path d="M254 330 Q240 315 235 325" fill="none" stroke="#5a6cee" stroke-width="2" stroke-linecap="round" opacity="0.25"/>
+  <path d="M257 355 Q270 342 275 350" fill="none" stroke="#5a6cee" stroke-width="2" stroke-linecap="round" opacity="0.2"/>
 </svg>
