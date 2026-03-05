@@ -39,10 +39,11 @@ export function Chat() {
     getMessages,
     startSession,
     completeSession,
+    resumeSession,
   } = useSessionStore();
 
   const settings = useSettingsStore();
-  const { sessions: historySessions, addSession } = useHistoryStore();
+  const { sessions: historySessions, addSession, removeSession } = useHistoryStore();
   const { updateAvatar } = useAvatarUpdate();
   const { addReward, updateStreak } = useRewardStore();
   const trustStore = useTrustStore();
@@ -111,7 +112,7 @@ export function Chat() {
         },
         ...currentMessages
           .filter((m) => m.content)
-          .slice(-20)
+          .slice(-14)
           .map((m) => ({
             role: m.role as "user" | "assistant",
             content: m.content,
@@ -234,6 +235,18 @@ export function Chat() {
     [activeSession, completeSession, addSession, startSession, streamResponse]
   );
 
+  const handleResumeSession = useCallback(
+    (session: import("../models/types").RecoverySession) => {
+      if (activeSession) {
+        const completed = completeSession();
+        if (completed) addSession(completed);
+      }
+      removeSession(session.id);
+      resumeSession(session);
+    },
+    [activeSession, completeSession, addSession, removeSession, resumeSession]
+  );
+
   const handleMakeLoan = useCallback(() => {
     if (!loanCommitment.trim()) return;
     const maxSize = trustStore.getMaxLoanSize();
@@ -293,7 +306,11 @@ export function Chat() {
   if (!activeSession) {
     return (
       <div className="flex flex-col h-full">
-        <ProtocolPicker onSelect={handleProtocolSelect} />
+        <ProtocolPicker
+          onSelect={handleProtocolSelect}
+          onResume={handleResumeSession}
+          pastSessions={historySessions}
+        />
         <div className="chat-input-bar p-4">
           <div className="flex gap-2 max-w-2xl mx-auto">
             <textarea

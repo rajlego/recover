@@ -7,6 +7,7 @@ interface HistoryState {
 
   // Actions
   addSession: (session: RecoverySession) => void;
+  removeSession: (sessionId: string) => void;
   updateFollowUp: (sessionId: string, result: FollowUpResult) => void;
 
   // Queries
@@ -23,6 +24,12 @@ export const useHistoryStore = create<HistoryState>()(
       addSession: (session) => {
         set((state) => ({
           sessions: [...state.sessions, session],
+        }));
+      },
+
+      removeSession: (sessionId) => {
+        set((state) => ({
+          sessions: state.sessions.filter((s) => s.id !== sessionId),
         }));
       },
 

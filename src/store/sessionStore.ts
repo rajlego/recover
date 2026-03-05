@@ -20,6 +20,9 @@ interface SessionState {
   abandonSession: () => void;
   clearSession: () => void;
 
+  // Resume
+  resumeSession: (session: RecoverySession) => void;
+
   // Queries
   getMessages: () => ChatMessage[];
   isSessionActive: () => boolean;
@@ -129,6 +132,16 @@ export const useSessionStore = create<SessionState>()(
 
       clearSession: () => {
         set({ activeSession: null });
+      },
+
+      resumeSession: (session: RecoverySession) => {
+        set({
+          activeSession: {
+            ...session,
+            status: "active",
+            updatedAt: new Date().toISOString(),
+          },
+        });
       },
 
       getMessages: () => {

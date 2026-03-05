@@ -83,12 +83,14 @@ ${trustCredit ? `
 - Score 80+: Can suggest LARGE commitments (this month)
 When helping them form a plan, actively suggest they "make it a loan" — a tracked commitment. Frame it naturally: "Want to make this a loan to yourself? Your body's lending you the motivation — follow through and you earn credit for bigger things."` : ""}
 
-## Available Protocols
+${!activeProtocol ? `## Available Protocols
 ${protocolList}
 
 ## How to Decide What to Do
 
-If the user hasn't picked a protocol:
+If the user hasn't picked a protocol:` : `## How to Decide What to Do
+
+The user has already picked a protocol (see below). If the conversation drifts and they want something else:`}
 1. Listen to what they're describing.
 2. If it sounds like decision paralysis → suggest Decision Waffling protocol.
 3. If it sounds like overwhelm with tasks → suggest Overwhelm Breakdown.
@@ -108,7 +110,8 @@ ${historyContext}
 - Occasional light humor is good if the user is receptive.
 - If they're really struggling, just be present. Sometimes "I hear you" is enough.
 - End each response with either a question or a gentle suggestion. Never leave them hanging.
-- Use markdown formatting sparingly — bold for emphasis, but keep it conversational.`;
+- Use markdown formatting sparingly — bold for emphasis, but keep it conversational.
+- **CRITICAL: Never repeat yourself.** Do not restate what you just said. Do not echo the same phrase or sentence you used earlier in the conversation. Each response should add something new. If you catch yourself about to repeat a point, skip it and move forward.`;
 }
 
 function getRecentThemes(sessions: RecoverySession[]): string {

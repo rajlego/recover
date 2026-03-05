@@ -1,8 +1,10 @@
-import { protocols } from "../protocols";
-import type { ProtocolCategory } from "../models/types";
+import { protocols, getProtocolById } from "../protocols";
+import type { ProtocolCategory, RecoverySession } from "../models/types";
 
 interface ProtocolPickerProps {
   onSelect: (protocolId: string | null) => void;
+  onResume?: (session: RecoverySession) => void;
+  pastSessions?: RecoverySession[];
 }
 
 const categoryLabels: Record<ProtocolCategory, string> = {
@@ -25,12 +27,38 @@ const categoryOrder: ProtocolCategory[] = [
   "self-inquiry",
 ];
 
-export function ProtocolPicker({ onSelect }: ProtocolPickerProps) {
+function sessionPreview(session: RecoverySession): string {
+  const lastUserMsg = [...session.messages]
+    .reverse()
+    .find((m) => m.role === "user");
+  if (lastUserMsg) {
+    const text = lastUserMsg.content;
+    return text.length > 60 ? text.slice(0, 60) + "..." : text;
+  }
+  return `${session.messages.length} messages`;
+}
+
+function timeAgo(dateStr: string): string {
+  const ms = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(ms / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+export function ProtocolPicker({ onSelect, onResume, pastSessions }: ProtocolPickerProps) {
   const grouped = categoryOrder.map((cat) => ({
     category: cat,
     label: categoryLabels[cat],
     items: protocols.filter((p) => p.category === cat),
   }));
+
+  const recentSessions = pastSessions
+    ?.slice(-5)
+    .reverse() || [];
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -44,6 +72,48 @@ export function ProtocolPicker({ onSelect }: ProtocolPickerProps) {
           capacity, that I can take the actions I want to take without having
           to be attached to the outcomes
         </p>
+
+        {/* Recent sessions */}
+        {recentSessions.length > 0 && onResume && (
+          <div className="w-full mb-6">
+            <div className="category-label mb-2 px-1">Continue</div>
+            <div className="space-y-1.5">
+              {recentSessions.map((session) => {
+                const protocol = session.protocolId
+                  ? getProtocolById(session.protocolId)
+                  : null;
+                return (
+                  <button
+                    key={session.id}
+                    className="protocol-card flex items-start justify-between"
+                    onClick={() => onResume(session)}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div
+                        className="text-sm font-medium truncate"
+                        style={{ color: "var(--astral-text)" }}
+                      >
+                        {protocol?.name || "Free talk"}
+                      </div>
+                      <div
+                        className="text-xs mt-0.5 truncate"
+                        style={{ color: "var(--astral-text-dim)" }}
+                      >
+                        {sessionPreview(session)}
+                      </div>
+                    </div>
+                    <span
+                      className="text-xs shrink-0 ml-3"
+                      style={{ color: "var(--astral-text-dim)" }}
+                    >
+                      {timeAgo(session.updatedAt)}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <button
           className="protocol-card flex items-center justify-between mb-6"
