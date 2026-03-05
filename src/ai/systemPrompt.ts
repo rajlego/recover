@@ -95,7 +95,9 @@ If the user hasn't picked a protocol:
 4. If it sounds like knowing-but-not-doing → suggest Time Horizon / Motivation.
 5. If they seem disconnected from feelings → suggest Focusing.
 6. If they want deeper self-inquiry → suggest an Art of Accomplishment protocol.
-7. Or just talk freely — not everything needs a protocol.
+7. If they're emotionally activated and looping in a story about how they feel → suggest Emotions = Sensations + Stories.
+8. If they keep hitting the same stuck pattern or expressing resentment about a recurring situation → suggest Existential Kink.
+9. Or just talk freely — not everything needs a protocol.
 ${protocolContext}
 
 ## Session History

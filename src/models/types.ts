@@ -42,7 +42,8 @@ export type ProtocolCategory =
   | "motivation"
   | "self-inquiry"
   | "focusing"
-  | "productivity";
+  | "productivity"
+  | "insight";
 
 export interface ProtocolStep {
   id: string;

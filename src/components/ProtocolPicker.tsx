@@ -12,10 +12,12 @@ const categoryLabels: Record<ProtocolCategory, string> = {
   "self-inquiry": "Self-Inquiry",
   focusing: "Somatic / Focusing",
   productivity: "Productivity",
+  insight: "Insight Practice",
 };
 
 const categoryOrder: ProtocolCategory[] = [
   "productivity",
+  "insight",
   "decision",
   "overwhelm",
   "motivation",

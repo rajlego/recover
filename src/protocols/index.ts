@@ -8,6 +8,8 @@ import { locallyOptimalProtocol } from "./locallyOptimal";
 import { waysOfLookingProtocol } from "./waysOfLooking";
 import { replacingFearProtocol } from "./replacingFear";
 import { focusedBlockProtocol } from "./focusedBlock";
+import { emotionsSensationsProtocol } from "./emotionsSensations";
+import { existentialKinkProtocol } from "./existentialKink";
 import type { Protocol, ProtocolCategory } from "../models/types";
 
 export const protocols: Protocol[] = [
@@ -21,6 +23,8 @@ export const protocols: Protocol[] = [
   waysOfLookingProtocol,
   replacingFearProtocol,
   focusedBlockProtocol,
+  emotionsSensationsProtocol,
+  existentialKinkProtocol,
 ];
 
 export function getProtocolById(id: string): Protocol | undefined {

@@ -68,6 +68,14 @@ test.describe("Core UI", () => {
     ).toBeVisible();
   });
 
+  test("shows insight practice protocols", async ({ page }) => {
+    await expect(page.getByText("Insight Practice")).toBeVisible();
+    await expect(
+      page.getByText("Emotions = Sensations + Stories")
+    ).toBeVisible();
+    await expect(page.getByText("Existential Kink")).toBeVisible();
+  });
+
   test("has input field for free-form typing", async ({ page }) => {
     const input = page.locator("textarea");
     await expect(input).toBeVisible();
