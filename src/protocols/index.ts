@@ -10,6 +10,7 @@ import { replacingFearProtocol } from "./replacingFear";
 import { focusedBlockProtocol } from "./focusedBlock";
 import { emotionsSensationsProtocol } from "./emotionsSensations";
 import { existentialKinkProtocol } from "./existentialKink";
+import { sarastiProtocol } from "./sarasti";
 import type { Protocol, ProtocolCategory } from "../models/types";
 
 export const protocols: Protocol[] = [
@@ -25,6 +26,7 @@ export const protocols: Protocol[] = [
   focusedBlockProtocol,
   emotionsSensationsProtocol,
   existentialKinkProtocol,
+  sarastiProtocol,
 ];
 
 export function getProtocolById(id: string): Protocol | undefined {
